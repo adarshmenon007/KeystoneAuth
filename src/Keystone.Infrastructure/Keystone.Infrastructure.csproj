@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Keystone.Application\Keystone.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
+    <!-- ASP.NET Core Identity EF Core stores. Not part of the shared framework, so referenced explicitly. -->
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.9" />
+    <!-- Overrides the vulnerable SQLitePCLRaw.lib.e_sqlite3 2.1.11 pulled in transitively (GHSA-2m69-gcr7-jv3q). -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
+    <!-- JWT signing/creation. Token *validation* lives in Keystone.Api via Microsoft.AspNetCore.Authentication.JwtBearer. -->
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.22.0" />
+  </ItemGroup>
+
+  <!-- ASP.NET Core Identity ships in the shared framework; a FrameworkReference keeps it off
+       the published output for a class library. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Lets Keystone.Infrastructure.IntegrationTests construct the DbContext directly against
+         a real Sqlite connection without widening the class's public API. -->
+    <InternalsVisibleTo Include="Keystone.Infrastructure.IntegrationTests" />
+  </ItemGroup>
+
+</Project>
