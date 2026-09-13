@@ -4,6 +4,7 @@ using Keystone.Domain.Accounts;
 using Keystone.Infrastructure.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Xunit;
 
@@ -45,7 +46,7 @@ public sealed class AuthTokenServiceTests : IAsyncLifetime
         _service = new AuthTokenService(_identityDb, Options.Create(new JwtOptions
         {
             SigningKey = "test-signing-key-at-least-32-characters-long!!",
-        }));
+        }), NullLogger<AuthTokenService>.Instance);
     }
 
     public async Task DisposeAsync()

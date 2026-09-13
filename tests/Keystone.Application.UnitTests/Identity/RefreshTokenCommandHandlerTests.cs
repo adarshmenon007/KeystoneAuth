@@ -18,7 +18,7 @@ public class RefreshTokenCommandHandlerTests
     [Fact]
     public async Task Handle_WithValidToken_ReturnsTheRotatedPair()
     {
-        var rotated = new AuthResult("access2", "refresh2", DateTimeOffset.UtcNow.AddMinutes(15), Guid.NewGuid(), "Ada");
+        var rotated = new AuthResult("access2", "refresh2", DateTimeOffset.UtcNow.AddMinutes(15), Guid.NewGuid(), "Jordan");
         _tokenService.RefreshAsync("refresh1", Arg.Any<CancellationToken>()).Returns(rotated);
 
         var result = await CreateHandler().Handle(new RefreshTokenCommand("refresh1"), CancellationToken.None);

@@ -8,6 +8,7 @@ using Keystone.Application.Identity;
 using Keystone.Application.Identity.Common;
 using Keystone.Domain.Accounts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -20,11 +21,14 @@ internal sealed class AuthTokenService : IAuthTokenService
 {
     private readonly KeystoneIdentityDbContext _identityDb;
     private readonly JwtOptions _options;
+    private readonly ILogger<AuthTokenService> _logger;
 
-    public AuthTokenService(KeystoneIdentityDbContext identityDb, IOptions<JwtOptions> options)
+    public AuthTokenService(
+        KeystoneIdentityDbContext identityDb, IOptions<JwtOptions> options, ILogger<AuthTokenService> logger)
     {
         _identityDb = identityDb;
         _options = options.Value;
+        _logger = logger;
     }
 
     public async Task<AuthResult> IssueTokensAsync(AuthenticatedAccount account, CancellationToken ct = default) =>
@@ -42,6 +46,9 @@ internal sealed class AuthTokenService : IAuthTokenService
         // Presenting a token that was already rotated or revoked = reuse → burn the family.
         if (record.RevokedAt is not null || record.ReplacedByTokenHash is not null)
         {
+            _logger.LogWarning(
+                "Refresh token reuse detected for family {FamilyId} (user {UserId}); revoking the family.",
+                record.FamilyId, record.UserId);
             await RevokeFamilyAsync(record.FamilyId, now, ct);
             return IdentityErrors.InvalidRefreshToken;
         }
@@ -71,6 +78,9 @@ internal sealed class AuthTokenService : IAuthTokenService
 
         if (rotated == 0)
         {
+            _logger.LogWarning(
+                "Refresh token rotation race lost for family {FamilyId} (user {UserId}); revoking the family.",
+                record.FamilyId, record.UserId);
             await RevokeFamilyAsync(record.FamilyId, now, ct);
             return IdentityErrors.InvalidRefreshToken;
         }

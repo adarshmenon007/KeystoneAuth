@@ -80,3 +80,17 @@ main {
 .loading-progress-text::after {
     content: "Loading";
 }
+
+.sidebar {
+    width: 250px;
+}
+
+@media (min-width: 641px) {
+    .navbar-toggler {
+        display: none;
+    }
+
+    .nav-scrollable {
+        display: block !important;
+    }
+}

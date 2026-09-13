@@ -13,7 +13,7 @@ public sealed class TokenStore
     private const string StorageKey = "keystone.auth";
 
     private readonly IJSRuntime _js;
-    private bool _loaded;
+    private Task? _loadTask;
 
     public TokenStore(IJSRuntime js)
     {
@@ -23,12 +23,10 @@ public sealed class TokenStore
     public AuthResponse? Current { get; private set; }
 
     /// <summary>Reads the persisted token on first call; a no-op afterwards.</summary>
-    public async ValueTask EnsureLoadedAsync()
-    {
-        if (_loaded)
-            return;
+    public ValueTask EnsureLoadedAsync() => new(_loadTask ??= LoadAsync());
 
-        _loaded = true;
+    private async Task LoadAsync()
+    {
         try
         {
             var json = await _js.InvokeAsync<string?>("localStorage.getItem", StorageKey);
@@ -44,14 +42,14 @@ public sealed class TokenStore
     public async Task SetAsync(AuthResponse auth)
     {
         Current = auth;
-        _loaded = true;
+        _loadTask = Task.CompletedTask;
         await _js.InvokeVoidAsync("localStorage.setItem", StorageKey, JsonSerializer.Serialize(auth));
     }
 
     public async Task ClearAsync()
     {
         Current = null;
-        _loaded = true;
+        _loadTask = Task.CompletedTask;
         await _js.InvokeVoidAsync("localStorage.removeItem", StorageKey);
     }
 }

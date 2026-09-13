@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Keystone.Application.Identity.Commands.Logout;
 
-/// <summary>Revokes the caller's whole refresh-token family.</summary>
+/// <summary>Revokes every refresh-token family the caller holds.</summary>
 public record LogoutCommand(string RefreshToken) : IRequest<ErrorOr<Success>>;

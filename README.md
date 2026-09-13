@@ -8,9 +8,9 @@ This repo exists to demonstrate the auth pattern in isolation — it deliberatel
 
 - **Clean Architecture**, 6 projects, dependency-inward only: `Keystone.Domain` → `Keystone.Application` → `Keystone.Infrastructure` / `Keystone.Api` / `Keystone.Web`, with `Keystone.Contracts` as the wire-format layer shared between `Api` and `Web`.
 - **CQRS via MediatR** — `RegisterUserCommand`, `LoginUserCommand`, `RefreshTokenCommand`, `LogoutCommand`, each a thin handler delegating to two Infrastructure seams (`IIdentityService`, `IAuthTokenService`).
-- **ErrorOr** for expected failures (bad credentials, duplicate email, invalid refresh token) instead of exceptions, with named static error classes (`IdentityErrors`).
+- **ErrorOr** for expected failures (bad credentials, duplicate email, invalid refresh token) instead of exceptions, with named static error classes (`IdentityErrors`). Note the deliberate tradeoff here: `/auth/register` returning "an account with this email already exists" on a duplicate is conventional but leaks account existence (email enumeration), whereas `/auth/login` intentionally gives no such signal on failure.
 - **Rotating refresh tokens with reuse detection** — the core pattern this repo is built to showcase. Every refresh token belongs to a "family"; presenting an already-rotated token is treated as a stolen-token signal and revokes the entire family, not just that token. See `Keystone.Infrastructure/Identity/AuthTokenService.cs` and its integration tests.
-- **Rate limiting, structured audit logging, and CORS** on every auth endpoint — closing the gaps a production auth service needs that a bare tutorial usually skips.
+- **Rate limiting, structured audit logging, and CORS** on every auth endpoint — closing the gaps a production auth service needs that a minimal reference implementation usually skips.
 - **Blazor WebAssembly** front end with browser-token storage, a `DelegatingHandler`-based bearer/refresh-on-401 pipeline, and `AuthenticationStateProvider` integration.
 
 ## Architecture
@@ -59,6 +59,8 @@ dotnet run --project src/Keystone.Web --launch-profile https
 ```
 
 Opens a browser at `https://localhost:7601`. Register an account, then visit "Profile" to see a live, token-authenticated API call.
+
+**Deploying beyond local dev:** two configuration values are hardcoded for local development and need to change first. `Cors:AllowedOrigins` in `src/Keystone.Api/appsettings.json` currently only lists the local dev Web ports, so a real deployment must add its actual Web origin. `KeystoneApi:BaseAddress` in `src/Keystone.Web/wwwroot/appsettings.json` is empty by default — local dev works because `appsettings.Development.json` supplies it, but a production build needs that value set explicitly.
 
 ## Running the tests
 
