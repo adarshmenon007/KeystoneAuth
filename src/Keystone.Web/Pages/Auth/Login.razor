@@ -1,0 +1,102 @@
+@page "/login"
+@attribute [AllowAnonymous]
+@using System.ComponentModel.DataAnnotations
+@using System.Net
+@using Keystone.Contracts.Identity
+@inject AuthApiClient AuthApi
+@inject KeystoneAuthenticationStateProvider AuthState
+@inject NavigationManager Navigation
+
+<PageTitle>Log in · KeystoneAuth</PageTitle>
+
+<h1>Log in</h1>
+
+<EditForm Model="_model" OnValidSubmit="SubmitAsync">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label class="form-label" for="email">Email</label>
+        <InputText id="email" class="form-control" @bind-Value="_model.Email" autocomplete="username" />
+        <ValidationMessage For="() => _model.Email" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="password">Password</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="_model.Password" autocomplete="current-password" />
+        <ValidationMessage For="() => _model.Password" />
+    </div>
+
+    <button type="submit" class="btn btn-primary" disabled="@_busy">
+        @(_busy ? "Signing in…" : "Log in")
+    </button>
+</EditForm>
+
+@if (_error is not null)
+{
+    <p class="text-danger mt-3">@_error</p>
+}
+
+<p class="mt-3">No account? <a href="register">Register</a></p>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
+
+    private readonly LoginModel _model = new();
+    private bool _busy;
+    private string? _error;
+
+    private async Task SubmitAsync()
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            var auth = await AuthApi.LoginAsync(new LoginRequest(_model.Email, _model.Password));
+            await AuthState.SignInAsync(auth);
+            Navigation.NavigateTo(ResolveReturnUrl(), forceLoad: false);
+        }
+        catch (KeystoneApiException ex)
+        {
+            _error = ex.StatusCode == HttpStatusCode.Unauthorized
+                ? "Email or password is incorrect."
+                : ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    // Only honour a site-relative path — never an absolute or protocol-relative URL, which
+    // would let a crafted ?returnUrl= bounce the user to an external site after login.
+    private string ResolveReturnUrl()
+    {
+        if (string.IsNullOrWhiteSpace(ReturnUrl))
+            return "";
+
+        var candidate = Uri.UnescapeDataString(ReturnUrl).Trim();
+
+        if (candidate.StartsWith('/') && !candidate.StartsWith("//") && !candidate.StartsWith("/\\"))
+            return candidate;
+
+        if (!candidate.StartsWith('/')
+            && !candidate.Contains("://", StringComparison.Ordinal)
+            && !candidate.StartsWith("//")
+            && Uri.TryCreate(candidate, UriKind.Relative, out _))
+        {
+            return candidate;
+        }
+
+        return "";
+    }
+
+    private sealed class LoginModel
+    {
+        [Required, EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        public string Password { get; set; } = string.Empty;
+    }
+}

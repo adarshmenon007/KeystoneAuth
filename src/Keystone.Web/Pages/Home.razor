@@ -1,0 +1,10 @@
+@page "/"
+
+<PageTitle>KeystoneAuth</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <h1>Welcome, @context.User.Identity?.Name</h1>
+        <p>You're signed in. Visit <a href="profile">Profile</a> to see a protected API call round-trip your JWT.</p>
+    </Authorized>
+</AuthorizeView>

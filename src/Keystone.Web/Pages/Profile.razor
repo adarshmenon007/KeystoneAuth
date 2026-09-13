@@ -1,0 +1,45 @@
+@page "/profile"
+@inject MeApiClient MeApi
+
+<PageTitle>Profile · KeystoneAuth</PageTitle>
+
+<h1>Profile</h1>
+
+<p>This page calls the protected <code>GET /me</code> endpoint with the stored bearer token, proving the JWT round-trip end to end (the token is issued by KeystoneAuth.Api and validated by it independently — the browser never checks it).</p>
+
+@if (_error is not null)
+{
+    <p class="text-danger">@_error</p>
+}
+else if (_me is null)
+{
+    <p>Loading…</p>
+}
+else
+{
+    <dl class="row">
+        <dt class="col-sm-3">User ID</dt>
+        <dd class="col-sm-9">@_me.UserId</dd>
+        <dt class="col-sm-3">Email</dt>
+        <dd class="col-sm-9">@_me.Email</dd>
+        <dt class="col-sm-3">Display name</dt>
+        <dd class="col-sm-9">@_me.DisplayName</dd>
+    </dl>
+}
+
+@code {
+    private Keystone.Contracts.Identity.MeResponse? _me;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _me = await MeApi.GetMeAsync();
+        }
+        catch (KeystoneApiException ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}
