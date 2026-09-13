@@ -1,0 +1,72 @@
+@inject TokenStore TokenStore
+@inject AuthApiClient AuthApi
+@inject KeystoneAuthenticationStateProvider AuthState
+@inject NavigationManager Navigation
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">KeystoneAuth</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="nav flex-column">
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">Home</NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="profile">Profile</NavLink>
+                </div>
+                <div class="nav-item px-3 mt-2">
+                    <span class="nav-link disabled">Signed in as @context.User.Identity?.Name</span>
+                </div>
+                <div class="nav-item px-3">
+                    <button class="btn btn-link nav-link" @onclick="LogoutAsync">Log out</button>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="login">Log in</NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="register">Register</NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task LogoutAsync()
+    {
+        var refreshToken = TokenStore.Current?.RefreshToken;
+        if (!string.IsNullOrEmpty(refreshToken))
+        {
+            try
+            {
+                await AuthApi.LogoutAsync(refreshToken);
+            }
+            catch (KeystoneApiException)
+            {
+                // Server-side revocation is best-effort — clear locally regardless.
+            }
+        }
+
+        await AuthState.SignOutAsync();
+        Navigation.NavigateTo("login");
+    }
+}
