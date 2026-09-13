@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Jwt:SigningKey is a secret — set it with `dotnet user-secrets set "Jwt:SigningKey" "<key>"`,
+         never a committed file (see README). -->
+    <UserSecretsId>keystoneauth-api-7a3f21e0-9c4b-4e7a-b6f0-2d8e5c1a9f47</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.9">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <!-- Overrides a vulnerable transitive Microsoft.OpenApi version. -->
+    <PackageReference Include="Microsoft.OpenApi" Version="2.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Keystone.Application\Keystone.Application.csproj" />
+    <ProjectReference Include="..\Keystone.Contracts\Keystone.Contracts.csproj" />
+    <ProjectReference Include="..\Keystone.Infrastructure\Keystone.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -9,6 +9,7 @@
     <Project Path="src/Keystone.Application/Keystone.Application.csproj" />
     <Project Path="src/Keystone.Infrastructure/Keystone.Infrastructure.csproj" />
     <Project Path="src/Keystone.Contracts/Keystone.Contracts.csproj" />
+    <Project Path="src/Keystone.Api/Keystone.Api.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Keystone.Application.UnitTests/Keystone.Application.UnitTests.csproj" />
