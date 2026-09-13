@@ -77,7 +77,13 @@
 
         var candidate = Uri.UnescapeDataString(ReturnUrl).Trim();
 
-        if (candidate.StartsWith('/') && !candidate.StartsWith("//") && !candidate.StartsWith("/\\"))
+        // Reject backslashes outright — browsers normalize "\" to "/" when resolving a
+        // URL, so "\\evil.com" (or "/\evil.com") can resolve cross-origin even though it
+        // doesn't start with "//" and isn't caught by a forward-slash-only check.
+        if (candidate.Contains('\\'))
+            return "";
+
+        if (candidate.StartsWith('/') && !candidate.StartsWith("//"))
             return candidate;
 
         if (!candidate.StartsWith('/')
