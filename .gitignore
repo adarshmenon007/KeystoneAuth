@@ -1,0 +1,17 @@
+# Rider files
+.idea/
+
+# Standard build output directories
+**/[Bb]in/
+**/[Oo]bj/
+
+# VS/Rider local settings
+.vs/
+
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal
+
+# IDE per-user project files
+*.csproj.user
