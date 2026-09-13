@@ -50,19 +50,19 @@ public sealed class IdentityServiceTests : IAsyncLifetime
     [Fact]
     public async Task RegisterAccountAsync_WithANewEmail_CreatesTheAccount()
     {
-        var result = await _service.RegisterAccountAsync("ada@example.com", "password123", "Ada Lovelace");
+        var result = await _service.RegisterAccountAsync("jordan@example.com", "password123", "Jordan Ellis");
 
         result.IsError.Should().BeFalse();
-        result.Value.Email.Should().Be("ada@example.com");
-        result.Value.DisplayName.Should().Be("Ada Lovelace");
+        result.Value.Email.Should().Be("jordan@example.com");
+        result.Value.DisplayName.Should().Be("Jordan Ellis");
     }
 
     [Fact]
     public async Task RegisterAccountAsync_WithADuplicateEmail_ReturnsConflict()
     {
-        await _service.RegisterAccountAsync("ada@example.com", "password123", "Ada Lovelace");
+        await _service.RegisterAccountAsync("jordan@example.com", "password123", "Jordan Ellis");
 
-        var result = await _service.RegisterAccountAsync("ada@example.com", "password456", "Someone Else");
+        var result = await _service.RegisterAccountAsync("jordan@example.com", "password456", "Someone Else");
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(IdentityErrors.EmailAlreadyInUse);
@@ -71,20 +71,20 @@ public sealed class IdentityServiceTests : IAsyncLifetime
     [Fact]
     public async Task ValidateCredentialsAsync_WithCorrectPassword_ReturnsTheAccount()
     {
-        await _service.RegisterAccountAsync("ada@example.com", "password123", "Ada Lovelace");
+        await _service.RegisterAccountAsync("jordan@example.com", "password123", "Jordan Ellis");
 
-        var result = await _service.ValidateCredentialsAsync("ada@example.com", "password123");
+        var result = await _service.ValidateCredentialsAsync("jordan@example.com", "password123");
 
         result.IsError.Should().BeFalse();
-        result.Value.Email.Should().Be("ada@example.com");
+        result.Value.Email.Should().Be("jordan@example.com");
     }
 
     [Fact]
     public async Task ValidateCredentialsAsync_WithWrongPassword_ReturnsInvalidCredentials()
     {
-        await _service.RegisterAccountAsync("ada@example.com", "password123", "Ada Lovelace");
+        await _service.RegisterAccountAsync("jordan@example.com", "password123", "Jordan Ellis");
 
-        var result = await _service.ValidateCredentialsAsync("ada@example.com", "wrong-password");
+        var result = await _service.ValidateCredentialsAsync("jordan@example.com", "wrong-password");
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(IdentityErrors.InvalidCredentials);

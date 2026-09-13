@@ -20,15 +20,15 @@ public class LoginUserCommandHandlerTests
     [Fact]
     public async Task Handle_WithValidCredentials_IssuesTokens()
     {
-        var account = new AuthenticatedAccount(Guid.NewGuid(), "ada@example.com", "Ada Lovelace");
+        var account = new AuthenticatedAccount(Guid.NewGuid(), "jordan@example.com", "Jordan Ellis");
         var expected = new AuthResult("access", "refresh", DateTimeOffset.UtcNow.AddMinutes(15), account.Id, account.DisplayName);
 
-        _identityService.ValidateCredentialsAsync("ada@example.com", "password123", Arg.Any<CancellationToken>())
+        _identityService.ValidateCredentialsAsync("jordan@example.com", "password123", Arg.Any<CancellationToken>())
             .Returns(account);
         _tokenService.IssueTokensAsync(account, Arg.Any<CancellationToken>()).Returns(expected);
 
         var result = await CreateHandler().Handle(
-            new LoginUserCommand("ada@example.com", "password123"), CancellationToken.None);
+            new LoginUserCommand("jordan@example.com", "password123"), CancellationToken.None);
 
         result.IsError.Should().BeFalse();
         result.Value.Should().Be(expected);
@@ -41,7 +41,7 @@ public class LoginUserCommandHandlerTests
             .Returns(IdentityErrors.InvalidCredentials);
 
         var result = await CreateHandler().Handle(
-            new LoginUserCommand("ada@example.com", "wrong"), CancellationToken.None);
+            new LoginUserCommand("jordan@example.com", "wrong"), CancellationToken.None);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(IdentityErrors.InvalidCredentials);
@@ -51,7 +51,7 @@ public class LoginUserCommandHandlerTests
     [Theory]
     [InlineData("", "password123")]
     [InlineData("   ", "password123")]
-    [InlineData("ada@example.com", "")]
+    [InlineData("jordan@example.com", "")]
     public async Task Handle_WithMissingInput_ShortCircuitsToUnauthorized(string email, string password)
     {
         var result = await CreateHandler().Handle(new LoginUserCommand(email, password), CancellationToken.None);

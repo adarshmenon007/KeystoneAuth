@@ -29,7 +29,7 @@ public sealed class AuthTokenServiceTests : IAsyncLifetime
             new DbContextOptionsBuilder<KeystoneIdentityDbContext>().UseSqlite(_connection).Options);
         await _identityDb.Database.MigrateAsync();
 
-        _account = new AuthenticatedAccount(Guid.NewGuid(), "ada@example.com", "Ada Lovelace");
+        _account = new AuthenticatedAccount(Guid.NewGuid(), "jordan@example.com", "Jordan Ellis");
 
         // AuthTokenService.RefreshAsync looks up the owning KeystoneUser row by id, so the
         // account must actually exist in the identity store, not just as an in-memory value.

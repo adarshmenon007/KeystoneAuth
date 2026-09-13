@@ -20,16 +20,16 @@ public class RegisterUserCommandHandlerTests
     [Fact]
     public async Task Handle_WithValidCommand_CreatesAccountAndIssuesTokens()
     {
-        var account = new AuthenticatedAccount(Guid.NewGuid(), "ada@example.com", "Ada Lovelace");
+        var account = new AuthenticatedAccount(Guid.NewGuid(), "jordan@example.com", "Jordan Ellis");
         var expected = new AuthResult("access", "refresh", DateTimeOffset.UtcNow.AddMinutes(15), account.Id, account.DisplayName);
 
         _identityService
-            .RegisterAccountAsync("ada@example.com", "password123", "Ada Lovelace", Arg.Any<CancellationToken>())
+            .RegisterAccountAsync("jordan@example.com", "password123", "Jordan Ellis", Arg.Any<CancellationToken>())
             .Returns(account);
         _tokenService.IssueTokensAsync(account, Arg.Any<CancellationToken>()).Returns(expected);
 
         var result = await CreateHandler().Handle(
-            new RegisterUserCommand("ada@example.com", "password123", "Ada Lovelace"), CancellationToken.None);
+            new RegisterUserCommand("jordan@example.com", "password123", "Jordan Ellis"), CancellationToken.None);
 
         result.IsError.Should().BeFalse();
         result.Value.Should().Be(expected);
@@ -38,17 +38,17 @@ public class RegisterUserCommandHandlerTests
     [Fact]
     public async Task Handle_TrimsEmailAndDisplayName_BeforeCallingTheStore()
     {
-        var account = new AuthenticatedAccount(Guid.NewGuid(), "ada@example.com", "Ada Lovelace");
-        _identityService.RegisterAccountAsync("ada@example.com", "password123", "Ada Lovelace", Arg.Any<CancellationToken>())
+        var account = new AuthenticatedAccount(Guid.NewGuid(), "jordan@example.com", "Jordan Ellis");
+        _identityService.RegisterAccountAsync("jordan@example.com", "password123", "Jordan Ellis", Arg.Any<CancellationToken>())
             .Returns(account);
         _tokenService.IssueTokensAsync(account, Arg.Any<CancellationToken>())
             .Returns(new AuthResult("a", "r", DateTimeOffset.UtcNow, account.Id, account.DisplayName));
 
         await CreateHandler().Handle(
-            new RegisterUserCommand("  ada@example.com  ", "password123", "  Ada Lovelace  "), CancellationToken.None);
+            new RegisterUserCommand("  jordan@example.com  ", "password123", "  Jordan Ellis  "), CancellationToken.None);
 
         await _identityService.Received(1).RegisterAccountAsync(
-            "ada@example.com", "password123", "Ada Lovelace", Arg.Any<CancellationToken>());
+            "jordan@example.com", "password123", "Jordan Ellis", Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -73,7 +73,7 @@ public class RegisterUserCommandHandlerTests
     public async Task Handle_WithPasswordShorterThan8_ReturnsValidationAndNeverTouchesTheStore(string? password)
     {
         var result = await CreateHandler().Handle(
-            new RegisterUserCommand("ada@example.com", password!, "Ada Lovelace"), CancellationToken.None);
+            new RegisterUserCommand("jordan@example.com", password!, "Jordan Ellis"), CancellationToken.None);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(IdentityErrors.WeakPassword);
@@ -85,7 +85,7 @@ public class RegisterUserCommandHandlerTests
     public async Task Handle_WithBlankDisplayName_ReturnsValidation()
     {
         var result = await CreateHandler().Handle(
-            new RegisterUserCommand("ada@example.com", "password123", "   "), CancellationToken.None);
+            new RegisterUserCommand("jordan@example.com", "password123", "   "), CancellationToken.None);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(IdentityErrors.DisplayNameRequired);
