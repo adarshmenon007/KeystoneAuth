@@ -11,5 +11,6 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Keystone.Application.UnitTests/Keystone.Application.UnitTests.csproj" />
+    <Project Path="tests/Keystone.Infrastructure.IntegrationTests/Keystone.Infrastructure.IntegrationTests.csproj" />
   </Folder>
 </Solution>
