@@ -8,4 +8,7 @@
     <Project Path="src/Keystone.Domain/Keystone.Domain.csproj" />
     <Project Path="src/Keystone.Application/Keystone.Application.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Keystone.Application.UnitTests/Keystone.Application.UnitTests.csproj" />
+  </Folder>
 </Solution>
