@@ -101,7 +101,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
-app.MapHealthChecks("/health/ready");
+app.MapHealthChecks("/health/ready");app.MapGet("/version", () => Results.Ok(new { version = "0.3" }));
 
 app.Services.ApplyMigrations();
 
