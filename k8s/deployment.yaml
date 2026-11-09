@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keystone-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keystone-api
+  template:
+    metadata:
+      labels:
+        app: keystone-api
+    spec:
+      containers:
+        - name: keystone-api
+          image: keystone-api:0.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: keystone-config
+            - secretRef:
+                name: keystone-secrets
